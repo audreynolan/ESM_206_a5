@@ -6,7 +6,9 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE,
+                      message = FALSE,
+                      warning = FALSE)
 ```
 
 ```{r}
@@ -24,7 +26,70 @@ mack_raw <- read_csv("mack_creek_vertebrates.csv") %>%
   select(-pitnumber, -length2, -notes)
 ```
 
-
+Part A: 
 ```{r}
+# notes from part A: 
+# Pacific Giant Salamanders, Dicamptodon tenebrosus.(DITE)
+# need to find total annual DTE counts
+
+# wrangling data to get counts for OG and CC
+
+counts_dite <- mack_raw %>% 
+  filter(species == "DITE") %>% 
+  group_by(year, species, section) %>%
+  summarize(counts = sum(entity))
 ```
 
+- Make graph showing counts
+
+---
+
+Part B: 
+```{r}
+# I = riffle, IP = Isolated pools, 
+dite_2017 <- mack_raw %>%
+  filter(year == "2017",
+         species == "DITE", 
+         unittype!="IP") %>% 
+  group_by(unittype, section) %>%
+  summarize(counts = sum(entity)) %>% 
+  group_by(section) %>% 
+  mutate(proportion = round(((counts/sum(counts))*100), digits = 2))
+```
+
+- Make table
+
+---
+
+Part C:
+
+- **Using Part B df w/ 2017 DITE**
+- Do test where two samples ARE independent of each other (same place, different cut)
+- Similar test to what was done with coffee and departments (in Lab 8)
+- Report in text (in context of actual counts)
+
+---
+
+Part D:
+```{r}
+weight_section <- mack_raw %>% 
+  filter(year == "2017",
+         species == "DITE") %>% 
+  group_by(section) %>% 
+  summarize(median_weight = median(weight, na.rm = TRUE),
+            mean_weight = round(mean(weight, na.rm = TRUE), digits = 2),
+            sdev = round(sd(weight, na.rm = TRUE), digits = 2),
+            count = sum(entity))
+```
+
+---
+
+Part E
+```{r}
+weight_channel <- mack_raw %>% 
+  filter(year == "2017",
+         species == "DITE") %>% 
+  group_by(unittype)
+```
+
+- 
