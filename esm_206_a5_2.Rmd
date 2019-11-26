@@ -190,3 +190,32 @@ kable(weight_channel_summary) %>%
 leveneTest(weight ~ unittype, data = weight_channel)
 ```
 
+```{r}
+# One-way ANOVA
+
+weight_aov <- aov(weight ~ unittype, data = weight_channel)
+
+summary(weight_aov)
+
+# We retain the alternative hypothesis (mean weight for the 3 species are NOT the same). But are they all different from each other? Or just two? 
+
+weight_lm <- lm(weight ~ unittype, data = weight_channel)
+weight_aov_t3 <- Anova(weight_lm)
+
+weight_aov_t3
+
+## Anova Table (Type II tests)
+## 
+## Response: flipper_length_mm
+##            Sum Sq  Df F value    Pr(>F)    
+## species   21415.6   2  411.79 < 2.2e-16 ***
+## Residuals  4212.6 162                      
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+# Notice that the F statistic value here (411.79) is almost exactly the same - the difference between these two is minimal. 
+```
+
+```{r}
+TukeyHSD(weight_aov)
+```
+
