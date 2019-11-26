@@ -59,6 +59,7 @@ ggplot(counts_dite, aes(x = year, y = counts))+
 Part B: 
 ```{r}
 # I = riffle, IP = Isolated pools, 
+
 dite_2017 <- mack_raw %>%
   filter(year == "2017",
          species == "DITE", 
@@ -110,9 +111,15 @@ chi_dite <- channel_section %>%
 dite_chi_test <- chisq.test(chi_dite)
 
 dite_chi_test
+
+# old in-text referencing:
+
+# Mean size (mm) for MPA sites (`r round(protection_2012$estimate[1],2)`) and non-MPA sites (`r round(protection_2012$estimate[2],2)`) in the year 2012 differ significantly (t(`r round(protection_2012$parameter,2)`) = (`r round(protection_2012$statistic,2)`, *p* = (`r round(protection_2012$p.value,2)`). 
+
 ```
 
 - Report in text (in context of actual counts), referencing table from Part B
+
 
 ---
 
@@ -129,6 +136,12 @@ weight_section <- mack_raw %>%
 
 kable(weight_section) %>% 
   kable_styling()
+
+# Is there a significant difference in mean weights for Pacific Giant Salamanders observed in the two forest sections in 2017? 
+
+weight_section_mean <- t.test(weight_section$mean_weight)
+ # p = 0.053 
+
 ```
 
 ---
@@ -169,6 +182,7 @@ ggplot(data = weight_channel, aes(sample = weight)) +
                  show.legend = FALSE
           ) +
   facet_wrap(~unittype, scales = "free")
+
 ```
 
 ```{r}
