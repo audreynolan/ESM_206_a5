@@ -20,6 +20,7 @@ library(kableExtra)
 library(dplyr)
 library(here)
 library(ggbeeswarm)
+library(car)
 
 # read in data
 mack_raw <- read_csv("mack_creek_vertebrates.csv") %>% 
@@ -125,6 +126,9 @@ weight_section <- mack_raw %>%
             mean_weight = round(mean(weight, na.rm = TRUE), digits = 2),
             sdev = round(sd(weight, na.rm = TRUE), digits = 2),
             count = sum(entity))
+
+kable(weight_section) %>% 
+  kable_styling()
 ```
 
 ---
@@ -167,4 +171,22 @@ ggplot(data = weight_channel, aes(sample = weight)) +
   facet_wrap(~unittype, scales = "free")
 ```
 
-- 
+```{r}
+weight_channel_summary <- weight_channel %>% 
+  summarize(
+    mean_weight = mean(weight, na.rm = TRUE),
+    sd_weight = sd(weight, (na.rm = TRUE)),
+    sample_size = n(),
+    se_weight = sd((weight) / sqrt(n()), (na.rm = TRUE)),
+    var_weight = var(weight, na.rm = TRUE)
+  )
+
+kable(weight_channel_summary) %>% 
+  kable_styling()
+
+# Importantly, variances are SOMEWHAT close (largest is < 4x greater than the smallest)
+# But we can perform a Levene's Test for equal variances anyway: 
+
+leveneTest(weight ~ unittype, data = weight_channel)
+```
+
