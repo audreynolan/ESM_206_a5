@@ -140,7 +140,7 @@ kable(weight_section) %>%
 # Is there a significant difference in mean weights for Pacific Giant Salamanders observed in the two forest sections in 2017? 
 
 weight_section_mean <- t.test(weight_section$mean_weight)
- # p = 0.053 
+ # p = 0.053
 
 ```
 
