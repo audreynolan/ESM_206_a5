@@ -19,6 +19,7 @@ library(plotly)
 library(kableExtra)
 library(dplyr)
 library(here)
+library(ggbeeswarm)
 
 # read in data
 mack_raw <- read_csv("mack_creek_vertebrates.csv") %>% 
@@ -38,6 +39,16 @@ counts_dite <- mack_raw %>%
   filter(species == "DITE") %>% 
   group_by(year, species, section) %>%
   summarize(counts = sum(entity))
+
+# make a graph showing counts
+ggplot(counts_dite, aes(x = year, y = counts, group = section, color = section))+
+  geom_line()+
+  theme_minimal()
+
+# orrrr.
+ggplot(counts_dite, aes(x = year, y = counts))+
+  geom_col()+
+  facet_wrap(~section)
 ```
 
 - Make graph showing counts
@@ -55,18 +66,52 @@ dite_2017 <- mack_raw %>%
   summarize(counts = sum(entity)) %>% 
   group_by(section) %>% 
   mutate(proportion = round(((counts/sum(counts))*100), digits = 2))
-```
 
-- Make table
+# table
+
+kable(dite_2017) %>% 
+  kable_styling()
+
+
+# Get the counts:
+channel_section <- mack_raw %>%
+  filter(year == "2017",
+         species == "DITE", 
+         unittype!="IP") %>% 
+  group_by(unittype, section) %>%
+  summarize(counts = sum(entity)) %>% 
+  pivot_wider(names_from = unittype, values_from = counts) %>% 
+  rename("Section" = section,
+         "Cascades" = C,
+         "Pool" = P,
+         "Side-channel" = SC)
+
+channel_section$Section <- gsub("CC", "Clear cut", channel_section$Section)
+channel_section$Section <- gsub("OG", "Old growth", channel_section$Section)
+
+channel_section_props <- channel_section %>% 
+  adorn_percentages((denominator = "row")) %>% 
+  adorn_pct_formatting(digits = 0) %>% 
+  adorn_ns(position = "front")
+
+kable(channel_section_props) %>% 
+  kable_styling()
+```
 
 ---
 
 Part C:
+```{r}
+# chi-square test
+chi_dite <- channel_section %>% 
+  select(-Section)
 
-- **Using Part B df w/ 2017 DITE**
-- Do test where two samples ARE independent of each other (same place, different cut)
-- Similar test to what was done with coffee and departments (in Lab 8)
-- Report in text (in context of actual counts)
+dite_chi_test <- chisq.test(chi_dite)
+
+dite_chi_test
+```
+
+- Report in text (in context of actual counts), referencing table from Part B
 
 ---
 
@@ -88,8 +133,38 @@ Part E
 ```{r}
 weight_channel <- mack_raw %>% 
   filter(year == "2017",
-         species == "DITE") %>% 
+         species == "DITE",
+         unittype != "IP") %>%
   group_by(unittype)
+
+# Beeswarm
+ggplot(data = weight_channel, aes(x = unittype, y = weight)) +
+  geom_beeswarm()
+
+# Jitter
+ggplot(data = weight_channel, aes(x = unittype, y = weight)) +
+  geom_jitter()
+
+# Density (faceted)
+ggplot(data = weight_channel, aes(x = weight, group = unittype, color = unittype)) +
+  geom_density() +
+  facet_wrap(~unittype)
+
+# Histograms (faceted) 
+ggplot(data = weight_channel, aes(x = weight)) +
+  geom_histogram(aes(fill = unittype),
+                 alpha = 0.5,
+                 show.legend = FALSE,
+                 bins = 15) +
+  facet_wrap(~unittype, scales = "free")
+
+# QQ plots (faceted)
+ggplot(data = weight_channel, aes(sample = weight)) +
+  geom_qq(aes(color = unittype),
+                 alpha = 0.5,
+                 show.legend = FALSE
+          ) +
+  facet_wrap(~unittype, scales = "free")
 ```
 
 - 
