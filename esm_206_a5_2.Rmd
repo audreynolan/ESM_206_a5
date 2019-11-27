@@ -25,23 +25,26 @@ library(car)
 # read in data
 mack_raw <- read_csv("mack_creek_vertebrates.csv") %>% 
   clean_names() %>% 
+  filter(species == "DITE") %>% 
   select(-pitnumber, -length2, -notes)
 ```
 
 Part A: 
-```{r}
-# notes from part A: 
-# Pacific Giant Salamanders, Dicamptodon tenebrosus.(DITE)
-# need to find total annual DTE counts
 
-# wrangling data to get counts for OG and CC
+Describe the trends in graph (in text). 
+
+```{r}
+# Note: Pacific Giant Salamanders, Dicamptodon tenebrosus (DITE).
+
+# wrangle data - total annual counts of DITE for OG and CC for all years.
 
 counts_dite <- mack_raw %>% 
-  filter(species == "DITE") %>% 
   group_by(year, species, section) %>%
   summarize(counts = sum(entity))
 
-# make a graph showing counts
+# make graph - show changes in annual counts for sections over time.
+# graph additions - caption + aesthetic formatting.
+
 ggplot(counts_dite, aes(x = year, y = counts, group = section, color = section))+
   geom_line()+
   theme_minimal()
@@ -52,33 +55,18 @@ ggplot(counts_dite, aes(x = year, y = counts))+
   facet_wrap(~section)
 ```
 
-- Make graph showing counts
-
 ---
 
 Part B: 
+
+Add a table caption above the table. 
+
 ```{r}
-# I = riffle, IP = Isolated pools, 
+# Note: I = riffle, IP = Isolated pools, 
 
-dite_2017 <- mack_raw %>%
-  filter(year == "2017",
-         species == "DITE", 
-         unittype!="IP") %>% 
-  group_by(unittype, section) %>%
-  summarize(counts = sum(entity)) %>% 
-  group_by(section) %>% 
-  mutate(proportion = round(((counts/sum(counts))*100), digits = 2))
-
-# table
-
-kable(dite_2017) %>% 
-  kable_styling()
-
-
-# Get the counts:
+# wrangle data - for DITE counts in diff channels in 2017.
 channel_section <- mack_raw %>%
-  filter(year == "2017",
-         species == "DITE", 
+  filter(year == "2017", 
          unittype!="IP") %>% 
   group_by(unittype, section) %>%
   summarize(counts = sum(entity)) %>% 
@@ -88,21 +76,51 @@ channel_section <- mack_raw %>%
          "Pool" = P,
          "Side-channel" = SC)
 
+# tidy df - elongating abbreviations
 channel_section$Section <- gsub("CC", "Clear cut", channel_section$Section)
 channel_section$Section <- gsub("OG", "Old growth", channel_section$Section)
 
+# mutate df - to get proportions of counts per channel.
 channel_section_props <- channel_section %>% 
   adorn_percentages((denominator = "row")) %>% 
   adorn_pct_formatting(digits = 0) %>% 
   adorn_ns(position = "front")
 
+# make table - of counts + proportions of DITE per channel in 2017.
 kable(channel_section_props) %>% 
+  kable_styling()
+
+###
+
+# old df... should DELETE
+dite_2017 <- mack_raw %>%
+  filter(year == "2017", 
+         unittype!="IP") %>% 
+  group_by(unittype, section) %>%
+  summarize(counts = sum(entity)) %>% 
+  group_by(section) %>% 
+  mutate(proportion = round(((counts/sum(counts))*100), digits = 2))
+
+# old table... should DELETE
+kable(dite_2017) %>% 
   kable_styling()
 ```
 
 ---
 
 Part C:
+
+Is there a significant difference in where in the channel Pacific giant salamanders are located (pool, cascade or side channel) between the two sections (old growth and clear cut)? 
+Regarding the locations where salamanders were observed in Mack Creek in 2017, is there a significant effect of forest condition (old growth or clear cut) on where in the channel salamanders are found (channel classification)?
+
+Report your statistical findings in text, in the context of the actual counts / proportions you present in the table. 
+
+- Report in text (in context of actual counts), referencing table from Part B
+
+**There is not a significant effect of forest condition (old growth or clear cut) on where in the channel salamanders are found (channel classification).**
+
+Another way to say this **forest condition and channel classification ARE independent**.
+
 ```{r}
 # chi-square test
 chi_dite <- channel_section %>% 
@@ -118,35 +136,46 @@ dite_chi_test
 
 ```
 
-- Report in text (in context of actual counts), referencing table from Part B
-
-
 ---
 
 Part D:
+
+_Question:_ Is there a significant difference in mean weights for Pacific giant salamanders observed in the two forest sections (clear cut and old growth) in 2017? 
+
+_Answer:_ In 2017, there is not a significant difference in mean weights for Pacific giant salamanders observed in the two forest sections (clear cut and old growth).
+
+- mean weight of DITE in clear cut forest sections is 0.66 grams higher than in old growth sections (5.43 and 4.77 respectively).
+- similar counts in the two forest sections: 368 at CC, 328 at OG (40 indiv diff).
+
 ```{r}
+# wrangle data - for 2017, find dite counts + median, mean, sdev for dite weights.
 weight_section <- mack_raw %>% 
-  filter(year == "2017",
-         species == "DITE") %>% 
+  filter(year == "2017") %>% 
   group_by(section) %>% 
   summarize(median_weight = median(weight, na.rm = TRUE),
             mean_weight = round(mean(weight, na.rm = TRUE), digits = 2),
             sdev = round(sd(weight, na.rm = TRUE), digits = 2),
             count = sum(entity))
 
+# make table - showing summary stats for weights dependent on forest sections.
 kable(weight_section) %>% 
   kable_styling()
 
 # Is there a significant difference in mean weights for Pacific Giant Salamanders observed in the two forest sections in 2017? 
 
 weight_section_mean <- t.test(weight_section$mean_weight)
- # p = 0.053
 
+# p = 0.053
 ```
 
 ---
 
 Part E
+
+Compare weights of Pacific giant salamanders in pools, cascades and side-channels of Mack Creek in 2017. Pool salamander observations from both the old growth and clear cut sections for this part (i.e., you will not consider “section” as a factor here).
+
+First, visually compare Pacific giant salamander weights between the three channel classifications. You can choose how to best visualize the weights between the three groups (Beeswarm? Jitter? Histogram? Density? Something else?), but you should indicate values for the mean, and standard deviation, standard error or a 95% confidence interval. Add a figure caption. 
+
 ```{r}
 weight_channel <- mack_raw %>% 
   filter(year == "2017",
@@ -184,6 +213,8 @@ ggplot(data = weight_channel, aes(sample = weight)) +
   facet_wrap(~unittype, scales = "free")
 
 ```
+
+Second, answer: Is there a significant difference in mean weights for Pacific giant salamanders observed in pools vs. cascades vs. side-channels in 2017? Describe the results of your statistical analysis in text, within the context of broader (and more important) measures of differences between groups (some options: means differences, effect sizes, percent differences, etc). 
 
 ```{r}
 weight_channel_summary <- weight_channel %>% 
@@ -233,3 +264,4 @@ weight_aov_t3
 TukeyHSD(weight_aov)
 ```
 
+Third, describe any concerns you have about comparing means across the groups. What might be another option to consider moving forward with the analysis? (You don’t need to actually do that here, just describe briefly in 1-2 sentences.)
