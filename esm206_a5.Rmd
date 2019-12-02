@@ -22,7 +22,7 @@ library(here)
 library(ggbeeswarm)
 library(car)
 
-# read in the data
+# read in data
 mack_raw <- read_csv("mack_creek_vertebrates.csv") %>% 
   clean_names() %>% 
   filter(species == "DITE") %>% 
