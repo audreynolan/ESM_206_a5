@@ -32,8 +32,6 @@ mack_raw <- read_csv("mack_creek_vertebrates.csv") %>%
 - which graph to use for the displaying counts of the two sections
 - a better way to run two sample ttest without creating two data frames 
 - displaying standard error on the beeswarm plots with means 
-- 
-
 
 ### Introduction
 - 7-8 sentences for reader to understnad purpose of report 
@@ -46,9 +44,9 @@ Pacific Giant Salamander (Dicamptodon tenebrosus) populations range from norther
 
 ---
 ### Data and Methods
-This data^[3]https://doi.org/10.6073/pasta/5de64af9c11579266ef20da2ff32f702^ analyzed for this report was collected from Mack Creek in the H.J. Andrews Experimental Forest in north California. Cuttthroat trout (Onchorhyncus clarki clarki) populations have been monitored since 1987 then monitoring of Pacific Giant Salamanders began in 1993. H.J. Andrews Experimental Forest contains two sections of clearcut forest (cleared in 1963) and an upstream 500 year old coniferous forest. These two sections will be referred to as "clear-cut"(CC) and "old-growth"(OG) throughout this report. Specimen were sampled via electro-fishing and captured vertebrates were measured and weighed. To include: relevant variables of study
+The data^[3]https://doi.org/10.6073/pasta/5de64af9c11579266ef20da2ff32f702^ analyzed for this report was collected from Mack Creek in the H.J. Andrews Experimental Forest in north California. Cuttthroat trout (Onchorhyncus clarki clarki) populations have been monitored since 1987 then monitoring of Pacific Giant Salamanders began in 1993. H.J. Andrews Experimental Forest contains two sections of clearcut forest (cleared in 1963) and an upstream 500 year old coniferous forest. These two sections will be referred to as "clear-cut"(CC) and "old-growth"(OG) throughout this report. Specimen were sampled via electro-fishing and captured vertebrates were measured and weighed. This report uses the salamander data regarding section (old growth or clearcut), channel-specification (cascades, pool or side-channel), salamander weight (grams), and total salamander counts observed(n). 
 
-This analysis focusses on the data regarding Pacific Giant Salamanders(PGS) and thier.... Statistical tests were performed on the data including X, Y, and Z were performed. 
+This analysis focusses on the data regarding Pacific Giant Salamanders(PGS) and thier.... Statistical tests were performed on the data including X , Y, Z.... 
 
 
 ---
