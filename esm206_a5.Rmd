@@ -33,6 +33,7 @@ mack_raw <- read_csv("mack_creek_vertebrates.csv") %>%
 - a better way to run two sample ttest without creating two data frames 
 - displaying standard error on the beeswarm plots with means 
 
+
 ### Introduction
 - 7-8 sentences for reader to understnad purpose of report 
 - image of pacific giant salamander (with credit to author/photographer)
@@ -293,6 +294,7 @@ ggplot(data = weight_channel_summary,
                      breaks = c(0, 25, 50, 75))
   
 ### 
+
 ggplot(data = weight_channel, aes(x = unittype, 
                                   y = weight, 
                                   fill = unittype)) +
@@ -323,8 +325,7 @@ weight_channel_summary <- weight_channel %>%
     sd_weight = sd(weight, (na.rm = TRUE)),
     sample_size = n(),
     se_weight = sd((weight) / sqrt(n()), (na.rm = TRUE)),
-    var_weight = var(weight, na.rm = TRUE)
-  )
+    var_weight = var(weight, na.rm = TRUE))
 
 kable(weight_channel_summary) %>% 
   kable_styling()
@@ -363,8 +364,8 @@ weight_aov_t3
 ```{r}
 TukeyHSD(weight_aov)
 ```
-
 Third, describe any concerns you have about comparing means across the groups. What might be another option to consider moving forward with the analysis? (You don’t need to actually do that here, just describe briefly in 1-2 sentences.)
+- Using means to compare groupd lead to skewed data, as seen in Figure 2, there were many outliers in the weights of salamanders within each channel section. For data that contains outliers, comparing medians elimanates the skew and allows for more [equal, levelized, ] comparison among groups. 
 
 
 
