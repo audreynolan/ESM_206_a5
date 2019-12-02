@@ -1,0 +1,380 @@
+---
+title: "ESM 206 Assignment 5"
+author: "Zoe Duerksen-Salm & Audrey Nolan"
+date: "11/23/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,
+                      message = FALSE,
+                      warning = FALSE)
+```
+
+```{r}
+# attach packages
+library(tidyverse)
+library(janitor)
+library(plotly)
+library(kableExtra)
+library(dplyr)
+library(here)
+library(ggbeeswarm)
+library(car)
+
+# read in the data
+mack_raw <- read_csv("mack_creek_vertebrates.csv") %>% 
+  clean_names() %>% 
+  filter(species == "DITE") %>% 
+  select(-pitnumber, -length2, -notes)
+```
+### to work on: 
+- which graph to use for the displaying counts of the two sections
+- a better way to run two sample ttest without creating two data frames 
+- displaying standard error on the beeswarm plots with means 
+- 
+
+
+### Introduction
+- 7-8 sentences for reader to understnad purpose of report 
+- image of pacific giant salamander (with credit to author/photographer)
+
+(! this syntax is SoOoO STALE, HALP ! (but the info is good))
+
+Pacific Giant Salamander (Dicamptodon tenebrosus) populations range from northern California to the Canadian border, but are absent from the Olympic Peninsula. Pacific Giant Salamanders(PGS) habitats consist of wetland habitats including permanent rivers, streams, creeks and pools of forests^[1](https://www.iucnredlist.org/species/59081/78906025#habitat-ecology)^. PGS are the largest terrestrial salamander in North America, growing up to 13 inches in total length ^[2](http://www.californiaherps.com/salamanders/pages/d.tenebrosus.html)^. PGS populations may be affected by increases in pressures associated with logging such as a decrease in habitat and an increase in siltation of the water due to upstream disturbances. This report analyses the differences in PGS populations between old growth(OG) forests and clear cut (CC) forests to asses the effects of logging and ... 
+
+
+---
+### Data and Methods
+This data^[3]https://doi.org/10.6073/pasta/5de64af9c11579266ef20da2ff32f702^ analyzed for this report was collected from Mack Creek in the H.J. Andrews Experimental Forest in north California. Cuttthroat trout (Onchorhyncus clarki clarki) populations have been monitored since 1987 then monitoring of Pacific Giant Salamanders began in 1993. H.J. Andrews Experimental Forest contains two sections of clearcut forest (cleared in 1963) and an upstream 500 year old coniferous forest. These two sections will be referred to as "clear-cut"(CC) and "old-growth"(OG) throughout this report. Specimen were sampled via electro-fishing and captured vertebrates were measured and weighed. To include: relevant variables of study
+
+This analysis focusses on the data regarding Pacific Giant Salamanders(PGS) and thier.... Statistical tests were performed on the data including X, Y, and Z were performed. 
+
+
+---
+### Results
+#### Results A: 
+
+Describe the trends in graph (in text). 
+
+Figure 1 shows the overall trend of PGS population counts being lower in clear-cut ares when compared to counts from old-growth forest. The annual change, growth or declines, of the two populations follows the same trend. Between the years 2011 and 2014 there was an obvious decline in population of both sections. This decline in population may be due to....  
+
+
+```{r}
+# Note: Pacific Giant Salamanders, Dicamptodon tenebrosus (DITE).
+
+# wrangle data - total annual counts of DITE for OG and CC for all years.
+
+counts_dite <- mack_raw %>% 
+  group_by(year, species, section) %>%
+  summarize(counts = sum(entity))
+
+# elongating abbreviations for legend 
+counts_dite$section <- gsub("CC", "Clear cut", counts_dite$section)
+counts_dite$section <- gsub("OG", "Old growth", counts_dite$section)
+
+# make graph - show changes in annual counts for sections over time.
+# graph additions - caption + aesthetic formatting.
+
+ggplot(counts_dite, aes(x = year, y = counts, group = section, color = section))+
+  geom_line()+
+  theme_minimal() + 
+  labs(title = "Figure 1: Pacific Giant Salamander Counts in Old Growth\nand Clear Cut Sections of Mack Creek(1993-2017)", 
+       x = "Year", 
+       y = "Salamander Count (n)", 
+       caption = "Figure 1 displays the total annual PGS counts for\nold-growth and clear-cut sections of Mack Creek.") + 
+  scale_x_continuous(limits = c(1993,2017), 
+                     breaks = c(1995, 2000, 2005, 2010, 2015))
+
+# orrrr.
+ggplot(counts_dite, 
+       aes(x = year, y = counts, width = 1)) +
+  geom_bar(position = "dodge",
+           stat = "identity", 
+           aes(fill = section)) +
+  labs(title = "Figure 1: Pacific Giant Salamander Counts in Old Growth\nand Clear Cut Sections of Mack Creek(1993-2017)", 
+       x = "Year", 
+       y = "Salamander Count (n)", 
+       caption = "Figure 1 displays the total annual PGS counts for\nold-growth and clear-cut sections of Mack Creek.") +
+  scale_x_continuous(expand = c(0,0), 
+                     limits = c(1992, 2018),
+                     breaks = c(1995,2000, 2005, 2010, 2015)) +
+  scale_y_continuous(expand = c(0,0),
+                      breaks = c(100, 200, 300),
+                     limits = c(0, 450)) +
+  scale_fill_manual(values = c("tan", "brown")) +
+  theme_bw() +
+  theme(legend.position= "bottom",
+    legend.title = element_blank(), 
+    legend.direction = "horizontal")
+
+```
+
+---
+
+#### Results B: 
+
+really rough analysis: 
+Table 1 shows that in both clear-cut and old-growth sections, salamanders are primarily located in channels classified as cascades(over 60% relative abundance), followed by side-channels then the least amount of salamanders were found in pools. Total annual counts of each  populaiton show that more salamanders were found in the clear-cut section of the forest. 
+
+
+```{r}
+# Note: I = riffle, IP = Isolated pools, 
+
+# wrangle data - for DITE counts in diff channels in 2017.
+channel_section <- mack_raw %>%
+  filter(year == "2017", 
+         unittype!="IP") %>% 
+  group_by(unittype, section) %>%
+  summarize(counts = sum(entity)) %>% 
+  pivot_wider(names_from = unittype, values_from = counts) %>% 
+  rename("Section" = section,
+         "Cascades" = C,
+         "Pool" = P,
+         "Side-channel" = SC)
+
+# mutate df - to get proportions of counts per channel.
+channel_section_props <- channel_section %>% 
+  adorn_percentages((denominator = "row")) %>% 
+  adorn_pct_formatting(digits = 0) %>% 
+  adorn_ns(position = "front")
+
+# make table - of counts + proportions of DITE per channel in 2017.
+kable(channel_section_props, 
+      caption = "Table 1 [displays] the 2017 salamander counts in each section and the relative proportions of salamanders in each channel classification(cascade, pool or side-channel)") %>% 
+  kable_styling("striped")
+
+
+```
+
+---
+
+#### Results C: 
+_Question_: Is there a significant difference in where in the channel PGS are located between the two sections? 
+
+- Report in text (in context of actual counts), referencing table from Part B
+
+```{r}
+# chi-square test
+chi_dite <- channel_section %>% 
+  select(-Section)
+
+dite_chi_test <- chisq.test(chi_dite)
+
+dite_chi_test
+
+# old in-text referencing:
+
+# Salamander location for for MPA sites (`r round(protection_2012$estimate[1],2)`) and non-MPA sites (`r round(protection_2012$estimate[2],2)`) in the year 2012 differ significantly (t(`r round(protection_2012$parameter,2)`) = (`r round(protection_2012$statistic,2)`, *p* = (`r round(protection_2012$p.value,2)`). 
+
+```
+There is not a significant effect of forest condition (old growth or clear cut) on where in the channel salamanders are found (channel classification)($\chi$^2^(`r dite_chi_test$parameter`) = `r round(dite_chi_test$statistic,2)`, *p* = `r round(dite_chi_test$p.value, 2)`). 
+
+...or say: 
+
+Regarding the locations where salamanders were observed in Mack Creek in 2017, there is not a significant effect of forest sections (old growth or clear cut) on where in the channel salamanders are found(channel classification).
+
+...another way to conclude:
+
+Forest condition and channel classification are independent with regards to location of salamanders observed in Mack Creek in 2017.
+
+There is not a significant effect of forest section(clear cut/old growth) on salamander location(cascades, pool, or side channel) ($\chi$^2^(`r dite_chi_test$parameter`) = `r round(dite_chi_test$statistic,2)`, *p* = `r round(dite_chi_test$p.value, 2)`). 
+
+---
+
+#### Results D:
+
+_Question:_ Is there a significant difference in mean weights for Pacific giant salamanders observed in the two forest sections (clear cut and old growth) in 2017? 
+
+_Answer:_
+In 2017...
+
+- There **is not** a significant difference in **mean** weights for Pacific giant salamanders observed in the two forest sections (clear cut and old growth).
+- There **IS** a significant difference in **median** weights for PGS between the two forest sections.
+
+
+The two sections of forest in 2017 have overall salamander counts that differ by only 40 individual specimen. Pacific Giant Salamander mean wieght is 0.66 grams highers in clear cut forest sections than in old growth sections (5.43 and 4.77 grams, respectively). 
+
+- mean weight of DITE in clear cut forest sections is 0.66 grams higher than in old growth sections (5.43 and 4.77 respectively).
+- similar counts in the two forest sections: 368 at CC, 328 at OG (40 indiv diff).
+
+```{r}
+# wrangle data - for 2017, find dite counts + median, mean, sdev for dite weights.
+weight_section <- mack_raw %>% 
+  filter(year == "2017") %>% 
+  group_by(section) %>% 
+  summarize(median_weight = median(weight, na.rm = TRUE),
+            mean_weight = round(mean(weight, na.rm = TRUE), digits = 2),
+            sdev = round(sd(weight, na.rm = TRUE), digits = 2),
+            count = sum(entity))
+
+# make table - showing summary stats for weights dependent on forest sections.
+weight_section_table <- kable(weight_section) %>% 
+  kable_styling()
+
+weight_section_table
+
+# wrangle data - for 2017, find dite counts + median, mean, sdev for dite weights.
+weights_cc <- mack_raw %>% 
+  filter(year == "2017",
+         section %in% c("CC")) %>% 
+  group_by(section)
+
+weights_og <- mack_raw %>% 
+  filter(year == "2017",
+         section %in% c("OG")) %>% 
+  group_by(section)
+
+
+# Is there a significant difference in mean weights for Pacific Giant Salamanders observed in the two forest sections in 2017? 
+
+weight_section_ttest <- t.test(weights_cc$weight, weights_og$weight)
+weight_section_ttest
+# p = 0.09599
+
+```
+
+Mean salamander weights for clear cut (`r round(weight_section_ttest$estimate[1],2)`) and old growth (`r round(weight_section_ttest$estimate [2],2)`) forest sections do not differ significantly (t(`r round(weight_section_ttest$parameter,2)`) = (`r round(weight_section_ttest$statistic,2)`, *p* = (`r round(weight_section_ttest$p.value,3)`).
+
+---
+
+#### Results E:
+
+Compare weights of Pacific giant salamanders in pools, cascades and side-channels of Mack Creek in 2017. Pool salamander observations from both the old growth and clear cut sections for this part (i.e., you will not consider “section” as a factor here).
+
+First, visually compare Pacific giant salamander weights between the three channel classifications. You can choose how to best visualize the weights between the three groups (Beeswarm? Jitter? Histogram? Density? Something else?), but you should indicate values for the mean, and standard deviation, standard error or a 95% confidence interval. Add a figure caption. 
+
+```{r}
+weight_channel <- mack_raw %>% 
+  filter(year == "2017",
+         species == "DITE",
+         unittype != "IP") %>%
+  group_by(unittype)
+         
+
+weight_channel_summary <- weight_channel %>% 
+  summarize(
+    mean_weight = mean(weight, na.rm = TRUE),
+    sd_weight = sd(weight, (na.rm = TRUE)),
+    sample_size = n(),
+    se_weight = sd((weight) / sqrt(n()), (na.rm = TRUE)),
+    var_weight = var(weight, na.rm = TRUE)
+  )
+
+# elongating abbreviations for legend
+# weight_channel$unittype <- gsub("SC", "Side-channel", weight_channel$unittype)
+# weight_channel$unittype <- gsub("P", "Pool", weight_channel$unittype)
+# weight_channel$unittype <- gsub("C", "Cascade", weight_channel$unittype)
+# weight_channel$unittype <- gsub("SC", "Side-channel", weight_channel$unittype)
+# weight_channel$unittype <- gsub("P", "Pool", weight_channel$unittype)
+# weight_channel$unittype <- gsub("C", "Cascade", weight_channel$unittype)
+
+# Beeswarm - AUD LIKES BEES
+ggplot(data = weight_channel_summary,
+       aes(x = unittype,
+           y = mean_weight)) +
+  geom_beeswarm(data = weight_channel,
+                aes(x = unittype, y = weight, color = unittype),
+                show.legend = FALSE)+
+  geom_errorbar(data = weight_channel_summary,
+                mapping = aes(ymin = mean_weight - sd_weight,
+                              ymax = mean_weight + sd_weight),
+                width = 0.1)+
+  geom_point(data = weight_channel_summary,
+             aes(x = unittype,
+                 y = mean_weight),
+             color = "black")+ 
+  labs(title = "Figure 2: Distribution of Pacific Giant Salamander weights across each location-classification", 
+       caption = "Figure 2 illustrates the distribution of Salamander weights across each channel classification, regardless of clear cut or old-growth forest.", 
+       x = "Channel Classification", 
+       y = "Salamander Weight (grams)")+
+  coord_flip()+
+  theme_bw()+
+  scale_y_continuous(expand = c(0,0),
+                     limits = c(-5, 87.5),
+                     breaks = c(0, 25, 50, 75))
+  
+### 
+ggplot(data = weight_channel, aes(x = unittype, 
+                                  y = weight, 
+                                  fill = unittype)) +
+  geom_violin(show.legend = FALSE) + 
+  geom_boxplot(width = 0.25,
+               fill = "white",
+               show.legend = FALSE) +
+  stat_boxplot(geom = 'errorbar',
+               width = 0.2)+
+  labs(title = "Figure 2: Distribution of Pacific Giant Salamander weights across each channel classification", 
+       caption = "Figure 2 illustrates the distribution of Salamander weights across each channel classification, regardless of clear \ncut or old-growth forest. Boxplot overlay shows the data spread, indicating median, upper and lower quartiles.", 
+       x = "Channel Classification", 
+       y = "Salamander Weight (grams)")+
+  coord_flip()+
+  theme_bw()+
+  scale_y_continuous(expand = c(0,0),
+                     limits = c(0, 87.5),
+                     breaks = c(0, 25, 50, 75))
+
+```
+
+Second, answer: Is there a significant difference in mean weights for Pacific giant salamanders observed in pools vs. cascades vs. side-channels in 2017? Describe the results of your statistical analysis in text, within the context of broader (and more important) measures of differences between groups (some options: means differences, effect sizes, percent differences, etc). 
+
+```{r}
+weight_channel_summary <- weight_channel %>% 
+  summarize(
+    mean_weight = mean(weight, na.rm = TRUE),
+    sd_weight = sd(weight, (na.rm = TRUE)),
+    sample_size = n(),
+    se_weight = sd((weight) / sqrt(n()), (na.rm = TRUE)),
+    var_weight = var(weight, na.rm = TRUE)
+  )
+
+kable(weight_channel_summary) %>% 
+  kable_styling()
+
+# Importantly, variances are SOMEWHAT close (largest is < 4x greater than the smallest)
+# But we can perform a Levene's Test for equal variances anyway: 
+
+leveneTest(weight ~ unittype, data = weight_channel)
+```
+
+```{r}
+# One-way ANOVA
+
+weight_aov <- aov(weight ~ unittype, data = weight_channel)
+
+summary(weight_aov)
+
+# We retain the alternative hypothesis (mean weight for the 3 species are NOT the same). But are they all different from each other? Or just two? 
+
+weight_lm <- lm(weight ~ unittype, data = weight_channel)
+weight_aov_t3 <- Anova(weight_lm)
+
+weight_aov_t3
+
+## Anova Table (Type II tests)
+## 
+## Response: flipper_length_mm
+##            Sum Sq  Df F value    Pr(>F)    
+## species   21415.6   2  411.79 < 2.2e-16 ***
+## Residuals  4212.6 162                      
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+# Notice that the F statistic value here (411.79) is almost exactly the same - the difference between these two is minimal. 
+```
+
+```{r}
+TukeyHSD(weight_aov)
+```
+
+Third, describe any concerns you have about comparing means across the groups. What might be another option to consider moving forward with the analysis? (You don’t need to actually do that here, just describe briefly in 1-2 sentences.)
+
+
+
+--- 
+### References
+1. https://www.iucnredlist.org/species/59081/78906025#habitat-ecology
+
+2. http://www.californiaherps.com/salamanders/pages/d.tenebrosus.html
+The historical distribution of this slamander has probably not declined, though there certainly has been some localized extirpation from urbanization and some fragmentation within the range mostly due to forestry practices. Studies indicate a long-term decline in populations after logging of old-growth forests. D. ensatus is far more abundant in unsilted streams than in streams that have become silted due to logging or other alteration of the land above the stream. Creek sedimentation eliminates access to cover under rocks in the streambed which is critical habitat
+
+3. Gregory S. V. 2016. Aquatic Vertebrate Population Study in Mack Creek, Andrews Experimental Forest, 1987 to present. Environmental Data Initiative. https://doi.org/10.6073/pasta/5de64af9c11579266ef20da2ff32f702. Dataset accessed 12/01/2019.
