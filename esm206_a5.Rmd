@@ -91,6 +91,7 @@ dite_counts_line <- ggplot(counts_dite, aes(x = year, y = counts, group = sectio
   scale_x_continuous(limits = c(1993,2017), 
                      breaks = c(1995, 2000, 2005, 2010, 2015))
 
+dite_counts_line
 ```
 
 ---
@@ -148,23 +149,11 @@ dite_chi_test <- chisq.test(chi_dite)
 
 ```
 
-A chi-square test was used to [look] for an association between forest secction (clear cut or old growth) and channel classification (cascades, pool, or side channel). The results indicate that forest section does not have a significatn effect on salamander location, and are thus independnet of each other ($\chi$^2^(`r dite_chi_test$parameter`) = `r round(dite_chi_test$statistic,2)`, *p* = `r round(dite_chi_test$p.value, 2)`).
+A chi-square test was used to determine if there is an association between forest secction (clear cut or old growth) and channel classification (cascades, pool, or side channel). The results indicate that forest section does not have a significatn effect on salamander location, and are thus independnet of each other ($\chi$^2^(`r dite_chi_test$parameter`) = `r round(dite_chi_test$statistic,2)`, *p* = `r round(dite_chi_test$p.value, 2)`).
 
 ---
 
 #### Results D:
-
-Pacific giant salamander observations in 2017 within clear cut and old growth forest sections [observe similar] counts and distributions of salamander weight. Therefore, it is important to compare statistics on salamander weight to [detect] potential significance difference between the two sample populations.
-
-PGS mean weight is 1.08 grams greater in clear cut sections that in old growth (7.78g and 6.7g, respectively).
-
-The results indicate that there *is not* a significant difference in *mean* weights for Pacific giant salamanders observed in the two forest sections (clear cut and old growth).
-
-
-Extras that maybe we add?
-
-- There **IS** a significant difference in **median** weights for PGS between the two forest sections.
-- The two sections of forest in 2017 have overall salamander counts that differ by only 40 individual specimen.
 
 ```{r}
 # wrangle data - for 2017, find dite counts + median, mean, sdev for dite weights.
@@ -184,13 +173,6 @@ weight_section <- mack_raw %>%
             sdev = round(sd(weight, na.rm = TRUE), digits = 2),
             count = sum(entity))
 
-# make table - showing summary stats for weights dependent on forest sections.
-weight_section_table <- kable(weight_section) %>% 
-  kable_styling(position = "center", 
-                full_width = F)
-
-weight_section_table
-
 # wrangle data - for 2017, find dite counts + median, mean, sdev for dite weights.
 weights_cc <- mack_raw %>% 
   filter(year == "2017",
@@ -206,16 +188,22 @@ weights_og <- mack_raw %>%
 
 
 # Is there a significant difference in mean weights for Pacific Giant Salamanders observed in the two forest sections in 2017? 
-
 weight_section_ttest <- t.test(weights_cc$weight, weights_og$weight)
 # p = 0.1378
 
 weight_section_cohen <- cohen.d(weights_cc$weight, weights_og$weight, na.rm = TRUE)
 # d = 0.11
+```
 
-## graph for distribution of salamander weights for each section 
+Pacific giant salamander observations in 2017 within clear cut and old growth forest sections have similar counts and distributions of salamander weight. The two sections of forest in 2017 have overall salamander counts that differ by only 40 individual specimen. Therefore, it is important to compare statistics on salamander weight to find potential differences between the two sample populations.
 
-ggplot(weight_dite, aes(weight, fill = section)) +
+PGS mean weight is 1.08 grams greater in clear cut sections than in old growth (7.78g and 6.7g, respectively). The results indicate that there *is not* a significant difference in *mean* weights for Pacific giant salamanders observed in the two forest sections (t(`r round(weight_section_ttest$parameter,2)`) = (`r round(weight_section_ttest$statistic,2)`, *p* = (`r round(weight_section_ttest$p.value,3)`). 
+
+Large sample size, a lack of significance difference between sample means, and a small effect size (Cohen's d = `r round(weight_section_cohen$estimate,2)`) indicates a lack of association between PGS weight and forest condition.
+
+```{r}
+# graph for distribution of salamander weights for each section 
+weight_distrib <- ggplot(weight_dite, aes(weight, fill = section)) +
   geom_density(alpha = 0.25) +
   scale_x_continuous(limits = c(-1, 90)) +
   scale_y_continuous(expand = c(0,0),
@@ -231,9 +219,8 @@ ggplot(weight_dite, aes(weight, fill = section)) +
   theme(legend.position = "top",
         plot.caption = element_text(hjust = 0))
 
+weight_distrib
 ```
-
-Mean salamander weights for clear cut (`r round(weight_section_ttest$estimate[1],2)`) and old growth (`r round(weight_section_ttest$estimate [2],2)`) forest sections do not differ significantly (t(`r round(weight_section_ttest$parameter,2)`) = (`r round(weight_section_ttest$statistic,2)`, *p* = (`r round(weight_section_ttest$p.value,3)`).
 
 ---
 
@@ -244,6 +231,7 @@ Compare weights of Pacific giant salamanders in pools, cascades and side-channel
 First, visually compare Pacific giant salamander weights between the three channel classifications. You can choose how to best visualize the weights between the three groups (Beeswarm? Jitter? Histogram? Density? Something else?), but you should indicate values for the mean, and standard deviation, standard error or a 95% confidence interval. Add a figure caption. 
 
 ```{r}
+
 weight_channel <- mack_raw %>% 
   filter(year == "2017",
          species == "DITE",
@@ -259,6 +247,7 @@ weight_channel_summary <- weight_channel %>%
     se_weight = sd((weight) / sqrt(n()), (na.rm = TRUE)),
     var_weight = var(weight, na.rm = TRUE)
   )
+
 
 # elongating abbreviations for legend
 # weight_channel$unittype <- gsub("SC", "Side-channel", weight_channel$unittype)
@@ -285,11 +274,12 @@ ggplot(data = weight_channel_summary,
                  y = mean_weight),
              color = "black")+ 
   labs(title = "Figure 2: Distribution of Pacific Giant Salamander weights across each location-classification", 
-       caption = "Figure 2 illustrates the distribution of Salamander weights across each channel classification, regardless of clear cut or old-growth forest.", 
+       caption = "Figure 2. PGS weight (g) across channel classifications at Mack Creek, Oregon in 2017. Blue, green, and coral points\nindicate individual PGS weights. Black points indicate group means. Error bars indicate one standard deviation in either\ndirection.",
        x = "Channel Classification", 
        y = "Salamander Weight (grams)")+
   coord_flip()+
   theme_bw()+
+  theme(plot.caption = element_text(hjust = 0))+
   scale_y_continuous(expand = c(0,0),
                      limits = c(-5, 87.5),
                      breaks = c(0, 25, 50, 75))
@@ -297,6 +287,7 @@ ggplot(data = weight_channel_summary,
 ```
 
 Second, answer: Is there a significant difference in mean weights for Pacific giant salamanders observed in pools vs. cascades vs. side-channels in 2017? Describe the results of your statistical analysis in text, within the context of broader (and more important) measures of differences between groups (some options: means differences, effect sizes, percent differences, etc). 
+
 
 ```{r}
 weight_channel_summary <- weight_channel %>% 
@@ -309,7 +300,6 @@ weight_channel_summary <- weight_channel %>%
 
 kable(weight_channel_summary) %>% 
   kable_styling()
-
 ```
 
 ```{r, include = FALSE}
@@ -318,11 +308,11 @@ kable(weight_channel_summary) %>%
 # Importantly, variances are SOMEWHAT close (largest is < 4x greater than the smallest)
 # But we can perform a Levene's Test for equal variances anyway: 
 
-leveneTest(weight ~ unittype, data = weight_channel)
-
+weight_levene <- leveneTest(weight ~ unittype, data = weight_channel)
+weight_levene
 ```
 
-
+Variance in weight among channel classifications are somewhat similar. The channel with the largest variance is less than 4x greater than that of the channel with the smallest variance. A Levene's Test shows that variances are equal (because p-val >0.05). Therefore, it is appropriate to execute a one-way ANOVA to compare means between the three groups.
 
 ```{r, include = FALSE}
 # One-way ANOVA
@@ -331,30 +321,29 @@ weight_aov <- aov(weight ~ unittype, data = weight_channel)
 
 summary(weight_aov)
 
-# We retain the alternative hypothesis (mean weight for the 3 species are NOT the same). But are they all different from each other? Or just two? 
+# Small p-val from one-way ANOVA indicates that mean weights for the 3 classifications are NOT the same.
+# To test if all mean mean weights are different from each other -- do post-hoc pariwise comparison using Tukey to see which groups differ significantly.
 
+# Type III ANOVA
 weight_lm <- lm(weight ~ unittype, data = weight_channel)
 weight_aov_t3 <- Anova(weight_lm)
 
 weight_aov_t3
 
-## Anova Table (Type II tests)
-## 
-## Response: flipper_length_mm
-##            Sum Sq  Df F value    Pr(>F)    
-## species   21415.6   2  411.79 < 2.2e-16 ***
-## Residuals  4212.6 162                      
-## ---
-## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-# Notice that the F statistic value here (411.79) is almost exactly the same - the difference between these two is minimal. 
-
+# # Notice that the F statistic value here (411.79) is almost exactly the same - the difference between these two is minimal. 
 ```
+
 
 ```{r, include = FALSE}
 
 TukeyHSD(weight_aov)
 
 ```
+
+one-way ANOVA with post-hoc tukey's HSD reveals a significant difference ONLY in mean salamander wieght between salamanders found in side channels and pools.
+
+ F(`r aov_outputs[1]`, `r aov_outputs[2]`) = `r round(aov_outputs[7],2)`, *p* = `r round(aov_outputs[9],3)`).
+
 Third, describe any concerns you have about comparing means across the groups. What might be another option to consider moving forward with the analysis? (You don’t need to actually do that here, just describe briefly in 1-2 sentences.)
 - Using means to compare groupd lead to skewed data, as seen in Figure 2, there were many outliers in the weights of salamanders within each channel section. For data that contains outliers, comparing medians elimanates the skew and allows for more [equal, levelized, ] comparison among groups. 
 
