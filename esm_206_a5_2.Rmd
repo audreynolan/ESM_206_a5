@@ -1,7 +1,7 @@
 ---
-title: "ESM 206 Assignment 5"
+title: "Analysis of Pacific Giant Salamanders Distribution[abundance] and Weight in Old Growth [vs] Clear Cut Forest."
 author: "Zoe Duerksen-Salm & Audrey Nolan"
-date: "11/23/2019"
+date: "12/4/2019"
 output: html_document
 ---
 
@@ -32,27 +32,27 @@ mack_raw <- read_csv("mack_creek_vertebrates.csv") %>%
   select(-pitnumber, -length2, -notes)
 
 ```
-### to work on: 
-- add in PGS photo
-- add map of the area
 
+![](pgs_gary_nafis.jpg)
+Pacific Giant Salamander Image Source: Gary Nafis^[1](http://www.californiaherps.com/salamanders/images/dtenebrosusfchu3086.jpg)^
 
 ### Introduction
-- 7-8 sentences for reader to understnad purpose of report 
-- image of pacific giant salamander (with credit to author/photographer)
-
 (! this syntax is SoOoO STALE, HALP ! (but the info is good))
 
-Pacific Giant Salamander (Dicamptodon tenebrosus) populations range from northern California to the Canadian border, but are absent from the Olympic Peninsula. Pacific Giant Salamanders(PGS) habitats consist of wetlands such as permanent rivers, streams, creeks and pools of forests^[1](https://www.iucnredlist.org/species/59081/78906025#habitat-ecology)^. PGS are the largest terrestrial salamander in North America, growing up to 13 inches in total length ^[2](http://www.californiaherps.com/salamanders/pages/d.tenebrosus.html)^. PGS populations may be affected by increases in pressures associated with logging such as a decrease in habitat and an increase in siltation of the water due to upstream disturbances. This report analyses the differences in PGS populations between old growth(OG) forests and clear cut (CC) forests located in the H.J. Andrews Experimental Forest. 
+Pacific Giant Salamanders,(*Dicamptodon tenebrosus*) are the largest terrestrial salamander in North America, growing up to 13 inches in total length ^[2](http://www.californiaherps.com/salamanders/pages/d.tenebrosus.html)^. Pacific Giant Salamanders(PGS) populations range from northern California to the Canadian border, but are absent from the Olympic Peninsula. Thier habitats consist of wetlands such as permanent rivers, streams, creeks and pools of forests^[3](https://www.iucnredlist.org/species/59081/78906025#habitat-ecology)^.  PGS populations may be affected by increases in pressures associated with logging such as habitat destruction and increased silt in the water due to upstream disturbances. This report analyses the differences in PGS populations between old growth(OG) forests and clear cut (CC) forests located in the H.J. Andrews Experimental Forest near Blue River, Oregon. 
+
+![](H.J. Andrews Experimental Forest (orgegon state map).jpg)
+Map Source: Oregon State University^[4](https://andrewsforest.oregonstate.edu/data/map)^
 
 ---
 
 ### Data and Methods
 
-The data^[3](https://doi.org/10.6073/pasta/5de64af9c11579266ef20da2ff32f702)^ analyzed for this report was collected from Mack Creek in the H.J. Andrews Experimental Forest in Oregon. Cuttthroat trout (Onchorhyncus clarki clarki) populations have been monitored since 1987 then monitoring of Pacific Giant Salamanders began in 1993. H.J. Andrews Experimental Forest contains two sections of clearcut forest (cleared in 1963) and an upstream 500 year old coniferous forest. These two sections will be referred to as "clear-cut"(CC) and "old-growth"(OG) throughout this report. Specimen were sampled via electro-fishing and captured vertebrates were measured and weighed. This report uses the salamander data regarding section (old growth or clearcut), channel-specification (cascades, pool or side-channel), salamander weight (grams), and total salamander counts observed(n). 
+The data^[5](https://doi.org/10.6073/pasta/5de64af9c11579266ef20da2ff32f702)^ analyzed for this report was collected from Mack Creek in the H.J. Andrews Experimental Forest in Oregon. Cuttthroat trout (Onchorhyncus clarki clarki) populations have been monitored since 1987 then monitoring of Pacific Giant Salamanders began in 1993. H.J. Andrews Experimental Forest contains two sections of clearcut forest (cleared in 1963) and an upstream 500 year old coniferous forest^[5](https://doi.org/10.6073/pasta/5de64af9c11579266ef20da2ff32f702)^. These two sections will be referred to as "clear cut"(CC) and "old growth"(OG) throughout this report. 
 
-This analysis focusses on the data regarding Pacific Giant Salamanders(PGS) and thier.... Statistical tests were performed on the data including X , Y, Z.... 
+Specimen were sampled via electro-fishing and captured vertebrates were measured and weighed. This report uses the salamander data regarding section (old growth or clearcut), channel-specification (cascades, pool or side-channel), salamander weight (grams), and the total salamander counts observed(n). 
 
+Salamander abundance across locations was explored using statistical tests including a chi-squared test, two-sample t-test, Cohen's d, Levene's test, one-way ANOVA, and Tukey's test.
 
 ---
 
@@ -89,6 +89,8 @@ dite_counts_line <- ggplot(counts_dite, aes(x = year, y = counts, group = sectio
        caption = "Figure 1 displays the total annual PGS counts for\nold-growth and clear-cut sections of Mack Creek.") + 
   scale_x_continuous(limits = c(1993,2017), 
                      breaks = c(1995, 2000, 2005, 2010, 2015))
+
+dite_counts_line
 
 ```
 
@@ -356,17 +358,24 @@ TukeyHSD(weight_aov)
 ```
 Third, describe any concerns you have about comparing means across the groups. What might be another option to consider moving forward with the analysis? (You don’t need to actually do that here, just describe briefly in 1-2 sentences.)
 - Using means to compare groupd lead to skewed data, as seen in Figure 2, there were many outliers in the weights of salamanders within each channel section. For data that contains outliers, comparing medians elimanates the skew and allows for more [equal, levelized, ] comparison among groups. 
+"Panulirus interruptus; California Spiny Lobster." CalPhotos, University of California, Berkeley, 1999, https://calphotos.berkeley.edu/cgi/img_query?enlarge=9092+3191+3541+0006
 
 
 --- 
 ### References
-1. https://www.iucnredlist.org/species/59081/78906025#habitat-ecology
+1. "Dicamptodon tenebrosus; Pacific Giant Salamander." Gary Nafis, California Herps,
+http://www.californiaherps.com/salamanders/images/dtenebrosusfchu3086.jpg
 
-2. http://www.californiaherps.com/salamanders/pages/d.tenebrosus.html
-The historical distribution of this slamander has probably not declined, though there certainly has been some localized extirpation from urbanization and some fragmentation within the range mostly due to forestry practices. Studies indicate a long-term decline in populations after logging of old-growth forests. D. ensatus is far more abundant in unsilted streams than in streams that have become silted due to logging or other alteration of the land above the stream. Creek sedimentation eliminates access to cover under rocks in the streambed which is critical habitat
+2. "Coastal Giant Salamander - Dicamptodon tenebrosus." California Herps, 2019, 
+http://www.californiaherps.com/salamanders/pages/d.tenebrosus.html
 
-3. Gregory S. V. 2016. Aquatic Vertebrate Population Study in Mack Creek, Andrews Experimental Forest, 1987 to present. Environmental Data Initiative. https://doi.org/10.6073/pasta/5de64af9c11579266ef20da2ff32f702. Dataset accessed 12/01/2019.
+3. "Coastal Giant Salamander - Dicamptodon tenebrosus." IUCN Red List of Threatened Species, 2015,
+https://www.iucnredlist.org/species/59081/78906025#habitat-ecology
 
-HJ Andrews map: 
-Image credit: Oregon State University 
-https://andrewsforest.oregonstate.edu/data/map
+4. "Andrews Forest Map" HJ Andrews Experimental Forest Long-Term Ecological Research, 2017, 
+https://andrewsforest.oregonstate.edu/data/map 
+
+5. Gregory S. V. 2016. Aquatic Vertebrate Population Study in Mack Creek, Andrews Experimental Forest, 1987 to present. Environmental Data Initiative. https://doi.org/10.6073/pasta/5de64af9c11579266ef20da2ff32f702. Dataset accessed 12/01/2019.
+
+
+
