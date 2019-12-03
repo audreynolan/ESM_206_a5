@@ -87,7 +87,7 @@ ggplot(counts_dite, aes(x = year, y = counts, group = section, color = section))
 
 # orrrr.
 ggplot(counts_dite, 
-       aes(x = year, y = counts, width = 1)) +
+       aes(x = year, y = counts, width = .8)) +
   geom_bar(position = "dodge",
            stat = "identity", 
            aes(fill = section)) +
@@ -167,17 +167,8 @@ dite_chi_test
 # Salamander location for for MPA sites (`r round(protection_2012$estimate[1],2)`) and non-MPA sites (`r round(protection_2012$estimate[2],2)`) in the year 2012 differ significantly (t(`r round(protection_2012$parameter,2)`) = (`r round(protection_2012$statistic,2)`, *p* = (`r round(protection_2012$p.value,2)`). 
 
 ```
-There is not a significant effect of forest condition (old growth or clear cut) on where in the channel salamanders are found (channel classification)($\chi$^2^(`r dite_chi_test$parameter`) = `r round(dite_chi_test$statistic,2)`, *p* = `r round(dite_chi_test$p.value, 2)`). 
 
-...or say: 
-
-Regarding the locations where salamanders were observed in Mack Creek in 2017, there is not a significant effect of forest sections (old growth or clear cut) on where in the channel salamanders are found(channel classification).
-
-...another way to conclude:
-
-Forest condition and channel classification are independent with regards to location of salamanders observed in Mack Creek in 2017.
-
-There is not a significant effect of forest section(clear cut/old growth) on salamander location(cascades, pool, or side channel) ($\chi$^2^(`r dite_chi_test$parameter`) = `r round(dite_chi_test$statistic,2)`, *p* = `r round(dite_chi_test$p.value, 2)`). 
+Forest section (clear cut or old growth) does not have a significant effect on salamander location (cascades, pool, or side channel) ($\chi$^2^(`r dite_chi_test$parameter`) = `r round(dite_chi_test$statistic,2)`, *p* = `r round(dite_chi_test$p.value, 2)`).
 
 ---
 
@@ -199,8 +190,16 @@ The two sections of forest in 2017 have overall salamander counts that differ by
 
 ```{r}
 # wrangle data - for 2017, find dite counts + median, mean, sdev for dite weights.
+weight_dite <- mack_raw %>% 
+  filter(year == "2017",
+         unittype != "IP") %>% 
+  select(section, weight, unittype) %>% 
+  group_by(section) %>% 
+  mutate(weight_avg = mean(weight, na.rm = TRUE))
+
 weight_section <- mack_raw %>% 
-  filter(year == "2017") %>% 
+  filter(year == "2017",
+         unittype != "IP") %>% 
   group_by(section) %>% 
   summarize(median_weight = median(weight, na.rm = TRUE),
             mean_weight = round(mean(weight, na.rm = TRUE), digits = 2),
@@ -216,12 +215,14 @@ weight_section_table
 # wrangle data - for 2017, find dite counts + median, mean, sdev for dite weights.
 weights_cc <- mack_raw %>% 
   filter(year == "2017",
-         section %in% c("CC")) %>% 
+         section == "CC",
+         unittype != "IP") %>% 
   group_by(section)
 
 weights_og <- mack_raw %>% 
   filter(year == "2017",
-         section %in% c("OG")) %>% 
+         section == "OG",
+         unittype != "IP") %>% 
   group_by(section)
 
 
@@ -229,7 +230,23 @@ weights_og <- mack_raw %>%
 
 weight_section_ttest <- t.test(weights_cc$weight, weights_og$weight)
 weight_section_ttest
-# p = 0.09599
+# p = 0.1378
+
+ggplot(weight_dite, aes(weight, fill = section)) +
+  geom_density(alpha = 0.25) +
+  scale_x_continuous(limits = c(-1, 90)) +
+  scale_y_continuous(expand = c(0,0),
+                     limits = c(0, 0.11)) +
+  geom_vline(aes(xintercept = weight_avg,
+                 color = section),
+             linetype = "dashed") +
+  labs(x = "Salamander Weight (g)",
+       y = "Salamander Density",
+       title = "Figure 2: Distribution of Salamander Weight in 2017",
+       caption = "Fig. 2 shows the distribution of salamander weight in clear cut and old growth forest sections of Mack creek in 2017.\nDashed lines indicate mean  weight of  salamanders observed in each forest section.") +
+  theme_bw()+
+  theme(legend.position = "top",
+        plot.caption = element_text(hjust = 0))
 
 ```
 
