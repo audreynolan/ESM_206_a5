@@ -35,6 +35,7 @@ mack_raw <- read_csv("mack_creek_vertebrates.csv") %>%
 ### to work on: 
 - add in PGS photo
 - add map of the area
+- add meaningful titles
 
 
 ### Introduction
@@ -96,9 +97,9 @@ dite_counts_line <- ggplot(counts_dite, aes(x = year, y = counts, group = sectio
 
 #### Results B: 
 
-really rough analysis: 
-Table 1 shows that in both clear-cut and old-growth sections, salamanders are primarily located in channels classified as cascades(over 60% relative abundance), followed by side-channels then the least amount of salamanders were found in pools. Total annual counts of each  populaiton show that more salamanders were found in the clear-cut section of the forest. 
+Pacific giant salamander observations from 2017 were [compiled] to evaluate salamander counts and proportions in different channel classifications (pool, cascade, or side-channel) within Mack Creek for the two sections (old growth and clear cut).
 
+Talbe 1 [indicates] that the majority of salamanders observed in both clear cut and old growth forest sections were found in cascades (over 60% for both). Side channels [contained] the [second most] observatoins (between 23-24% of observations). The [lowest] proportion of salamanders were observed in pools (less than 15% of relative abundance). Overall, more salamanders were observed in clear cut than old growth sections--368 and 320 respectively.
 
 ```{r}
 # Note: I = riffle, IP = Isolated pools, 
@@ -114,6 +115,10 @@ channel_section <- mack_raw %>%
          "Cascades" = C,
          "Pool" = P,
          "Side-channel" = SC)
+
+# elongating abbreviations for table 
+channel_section$Section <- gsub("CC", "Clear cut", channel_section$Section)
+channel_section$Section <- gsub("OG", "Old growth", channel_section$Section)
 
 # mutate df - to get proportions of counts per channel.
 channel_section_props <- channel_section %>% 
@@ -131,39 +136,35 @@ kable(channel_section_props,
 
 ---
 
-#### Results C: 
-_Question_: Is there a significant difference in where in the channel PGS are located between the two sections? 
-
-- Report in text (in context of actual counts), referencing table from Part B
+#### Results C:
 
 ```{r}
-# chi-square test
+# Use the contingency table of counts (channel_section) and select for just the four count values
 chi_dite <- channel_section %>% 
   select(-Section)
 
+# Run a chi-square test for independence
 dite_chi_test <- chisq.test(chi_dite)
 
 ```
 
-Forest section (clear cut or old growth) does not have a significant effect on salamander location (cascades, pool, or side channel) ($\chi$^2^(`r dite_chi_test$parameter`) = `r round(dite_chi_test$statistic,2)`, *p* = `r round(dite_chi_test$p.value, 2)`).
+A chi-square test was used to [look] for an association between forest secction (clear cut or old growth) and channel classification (cascades, pool, or side channel). The results indicate that forest section does not have a significatn effect on salamander location, and are thus independnet of each other ($\chi$^2^(`r dite_chi_test$parameter`) = `r round(dite_chi_test$statistic,2)`, *p* = `r round(dite_chi_test$p.value, 2)`).
 
 ---
 
 #### Results D:
 
-_Question:_ Is there a significant difference in mean weights for Pacific giant salamanders observed in the two forest sections (clear cut and old growth) in 2017? 
+Pacific giant salamander observations in 2017 within clear cut and old growth forest sections [observe similar] counts and distributions of salamander weight. Therefore, it is important to compare statistics on salamander weight to [detect] potential significance difference between the two sample populations.
 
-_Answer:_
-In 2017...
+PGS mean weight is 1.08 grams greater in clear cut sections that in old growth (7.78g and 6.7g, respectively).
 
-- There **is not** a significant difference in **mean** weights for Pacific giant salamanders observed in the two forest sections (clear cut and old growth).
+The results indicate that there *is not* a significant difference in *mean* weights for Pacific giant salamanders observed in the two forest sections (clear cut and old growth).
+
+
+Extras that maybe we add?
+
 - There **IS** a significant difference in **median** weights for PGS between the two forest sections.
-
-
-The two sections of forest in 2017 have overall salamander counts that differ by only 40 individual specimen. Pacific Giant Salamander mean wieght is 0.66 grams highers in clear cut forest sections than in old growth sections (5.43 and 4.77 grams, respectively). 
-
-- mean weight of DITE in clear cut forest sections is 0.66 grams higher than in old growth sections (5.43 and 4.77 respectively).
-- similar counts in the two forest sections: 368 at CC, 328 at OG (40 indiv diff).
+- The two sections of forest in 2017 have overall salamander counts that differ by only 40 individual specimen.
 
 ```{r}
 # wrangle data - for 2017, find dite counts + median, mean, sdev for dite weights.
