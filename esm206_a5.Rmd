@@ -128,21 +128,14 @@ channel_section$Section <- gsub("OG", "Old growth", channel_section$Section)
 channel_section_props <- channel_section %>% 
   adorn_percentages((denominator = "row")) %>% 
   adorn_pct_formatting(digits = 0) %>% 
-  adorn_ns(position = "front") %>% 
+  adorn_ns(position = "front") %>%
   kable(caption = "Table 1 [displays] the 2017 salamander counts in each section and the relative proportions of salamanders in each channel classification(cascade, pool or side-channel)") %>% 
   kable_styling(bootstrap_options = c("striped", "responsive"),
                 font_size = 15) %>% 
-  row_spec(0, bold = T, color = "black", background = "tan")
+  row_spec(0, bold = T, color = "black", background = "tan") %>% 
+  column_spec(1, bold = T, color = "black", background = "tan")
 
 channel_section_props
-
-# make table - of counts + proportions of DITE per channel in 2017.
-kable(channel_section_props, 
-      caption = "Table 1 [displays] the 2017 salamander counts in each section and the relative proportions of salamanders in each channel classification(cascade, pool or side-channel)") %>% 
-  kable_styling(bootstrap_options = c("striped", "responsive"),
-                font_size = 15) %>% 
-  row_spec(0, bold = T, color = "black", background = "tan")
-
 ```
 
 ---
