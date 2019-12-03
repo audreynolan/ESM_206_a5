@@ -32,7 +32,7 @@ mack_raw <- read_csv("mack_creek_vertebrates.csv") %>%
   select(-pitnumber, -length2, -notes)
 
 ```
-
+checking push 
 ![](pgs_gary_nafis.jpg)
 Pacific Giant Salamander Image Source: Gary Nafis^[1](http://www.californiaherps.com/salamanders/images/dtenebrosusfchu3086.jpg)^
 
