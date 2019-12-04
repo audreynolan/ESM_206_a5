@@ -340,7 +340,7 @@ weight_aov <- aov(weight ~ channel, data = weight_channel)
 aov_outputs <- unlist(summary(weight_aov))
 ```
 
-A one-way ANOVA indicates that the mean weights for the three classifications are *not* the same (F(`r aov_outputs[1]`, `r aov_outputs[2]`) = `r round(aov_outputs[7],2)`, *p* = `r round(aov_outputs[9],3)`)). In response, a post-hoc pairwise comparison using Tukey is used to test which of the 3 channel classifications differ from one another (based on mean weight values).
+A one-way ANOVA indicates that the mean weights for the three classifications are not the same (F(`r aov_outputs[1]`, `r aov_outputs[2]`) = `r round(aov_outputs[7],2)`, *p* = `r round(aov_outputs[9],3)`)). In response, a post-hoc pairwise comparison using Tukey is used to test which of the 3 channel classifications differ from one another (based on mean weight values).
 
 ```{r}
 # Run a Tukey test on channel classifications
