@@ -1,5 +1,5 @@
 ---
-title: "Comparison of Pacific Giant Salamander abundance and weight in Mack Creek"
+title: "Comparison of Pacific Giant Salamander Abundance and Weight in Mack Creek"
 author: "Zoe Duerksen-Salm & Audrey Nolan"
 output: html_document
 ---
@@ -8,11 +8,12 @@ output: html_document
 knitr::opts_chunk$set(echo = FALSE,
                       message = FALSE,
                       warning = FALSE, 
-                      cache = FALSE)
+                      cache = FALSE,
+                      include = FALSE)
 ```
 
 ```{r}
-# attach packages
+# Attach packages
 library(tidyverse)
 library(janitor)
 library(plotly)
@@ -24,12 +25,11 @@ library(car)
 library(plotly)
 library(effsize)
 
-# read in data
+# Read in original data
 mack_raw <- read_csv("mack_creek_vertebrates.csv") %>% 
   clean_names() %>% 
   filter(species == "DITE") %>% 
   select(-pitnumber, -length2, -notes)
-
 ```
 
 ---
@@ -39,8 +39,8 @@ Pacific Giant Salamander Image Source: Gary Nafis^[1](http://www.californiaherps
 
 ### Introduction
 
-The Pacific Giant Salamanders (*Dicamptodon tenebrosus*) is the largest terrestrial salamander in North America, growing up to 13 inches in total length ^[2](http://www.californiaherps.com/salamanders/pages/d.tenebrosus.html)^. Pacific Giant Salamanders (subsequently reffered to as just "salamanders") are born with gills. Some individuals retain these gills throughout their life for a more aquatic lifestyle or metamorphosize lungs, allowing for a more terrestrial lifestyle^[3](https://animaldiversity.org/accounts/Dicamptodon_tenebrosus/
-)^. Salamanders are reported to bite when handled and even “growl” or “bark” when they feel threatened^[4](https://amphibiaweb.org/cgi/amphib_query?where-genus=Dicamptodon&where-species=tenebrosus&account=amphibiaweb)^. Pacific Giant Salamanders(PGS) populations range from northern California to the Canadian border, but are absent from the Olympic Peninsula. Salamander habitats consist of wetlands such as permanent rivers, streams, creeks and pools in forests^[5](https://www.iucnredlist.org/species/59081/78906025#habitat-ecology)^. Salamander populations may be affected by increased pressures associated with logging, including habitat destruction and increased silt in water from upstream disturbances. This report analyzes differences in salamander populations observed in the H.J. Andrews Experimental Forest near Blue River, Oregon.
+The Pacific Giant Salamander (*Dicamptodon tenebrosus*) is the largest terrestrial salamander in North America, growing up to 13 inches in total length ^[2](http://www.californiaherps.com/salamanders/pages/d.tenebrosus.html)^. Pacific Giant Salamanders (subsequently reffered to as just "salamanders") are born with gills. Some individuals retain these gills throughout their life for a more aquatic lifestyle or metamorphosize lungs, allowing for a more terrestrial lifestyle^[3](https://animaldiversity.org/accounts/Dicamptodon_tenebrosus/
+)^. Salamanders are reported to bite when handled and even “growl” or “bark” when they feel threatened^[4](https://amphibiaweb.org/cgi/amphib_query?where-genus=Dicamptodon&where-species=tenebrosus&account=amphibiaweb)^. Pacific Giant Salamanders populations range from northern California to the Canadian border, but are absent from the Olympic Peninsula. Salamander habitats consist of wetlands such as permanent rivers, streams, creeks and pools in forests^[5](https://www.iucnredlist.org/species/59081/78906025#habitat-ecology)^. Salamander populations may be affected by increased pressures associated with logging, including habitat destruction and increased silt in water from upstream disturbances. This report analyzes differences in salamander populations observed in the H.J. Andrews Experimental Forest near Blue River, Oregon.
 
 ![](H.J. Andrews Experimental Forest (orgegon state map).jpg)
 Map Source: Oregon State University^[6](https://andrewsforest.oregonstate.edu/data/map)^
@@ -51,7 +51,7 @@ Map Source: Oregon State University^[6](https://andrewsforest.oregonstate.edu/da
 
 The data^[7](https://doi.org/10.6073/pasta/5de64af9c11579266ef20da2ff32f702)^ analyzed in this report was collected from Mack Creek in the H.J. Andrews Experimental Forest in Oregon. Cutthroat trout (Onchorhyncus clarki clarki) populations have been monitored since 1987. Observations of Pacific Giant Salamanders did not begin until 1993. The H.J. Andrews Experimental Forest contains two sections of clearcut forest (cleared in 1963) and an upstream coniferous forest that is 500 years old^[7](https://doi.org/10.6073/pasta/5de64af9c11579266ef20da2ff32f702)^. These two sections will be referred to as "clear cut"(CC) and "old growth"(OG) throughout this report. 
 
-Specimen were sampled via electro-fishing. Captured vertebrates were then measured and weighed. This report evaluates salamander data on forest section type (old growth or clearcut), channel classiffications (cascades, pool or side-channel), salamander weight (in grams), and the total salamander counts observed (n). 
+Specimen were sampled via electro-fishing. Captured vertebrates were then measured and weighed. This report evaluates salamander data on forest section type (old growth or clear cut), channel classifications (cascades, pool or side-channel), salamander weight (in grams), and the total salamander counts observed (n). 
 
 Salamander abundance across locations was explored using statistical tests including chi-squared test, two-sample t-test, Cohen's d, Levene's test, one-way ANOVA, and Tukey's test.
 
@@ -61,38 +61,42 @@ Salamander abundance across locations was explored using statistical tests inclu
 
 #### A. Annual salamander counts in forest sections of Mack Creek
 
-Figure 1 displays the overall trend of salamander population numbers. In general, salamander abundance is lower in clear cut areas compared to counts from old growth forest. Annual change in abundance for each forest section follows simlar trends in growth and decline throughout the study period (1993-2017). However, in 2015 salamander populations in clear cut sections surpassed that in old growth. This shift lingered in the following years of the study.
+Figure 1 displays the overall trend of salamander population numbers. In general, salamander abundance is lower in clear cut areas compared to counts from old growth forest. Annual change in abundance for each forest section follows similar trends in growth and decline throughout the study period (1993-2017). However, in 2015 salamander populations in clear cut sections surpassed that in old growth. This shift lingered in the following years of the study.
 
-```{r}
-# Note: Pacific Giant Salamanders, Dicamptodon tenebrosus (DITE).
-
-# wrangle data - total annual counts of DITE for OG and CC for all years.
-
+```{r, include = TRUE}
+# Wrangle data - total annual counts of DITE for OG and CC for all years.
 counts_dite <- mack_raw %>% 
   group_by(year, species, section) %>%
   summarize(counts = sum(entity))
 
-# elongating abbreviations for legend 
+# Elongate abbreviations for legend 
 counts_dite$section <- gsub("CC", "Clear cut", counts_dite$section)
 counts_dite$section <- gsub("OG", "Old growth", counts_dite$section)
 
-# make graph - show changes in annual counts for sections over time.
-# graph additions - caption + aesthetic formatting.
-
+# Make graph - show changes in annual counts for sections over time.
+# Graph additions - caption + aesthetic formatting.
 dite_counts_line <- ggplot(counts_dite, aes(x = year, y = counts, group = section, color = section))+
   geom_line(show.legend = FALSE)+
+  scale_color_manual(values = c("#00CC33", "#993300"))+
   theme_minimal()+
   theme(plot.caption = element_text(hjust = 0))+
-  annotate("text", x = 2018.85, y = 368, label = "Clear cut", color = "red")+
-  annotate("text", x = 2019.25, y = 328, label = "Old growth", color = "lightblue4")+
+  annotate("text", x = 2018.85, y = 368,
+           label = "Clear cut",
+           color = "#00CC33",
+           size = 4)+
+  annotate("text", x = 2019.25, y = 328,
+           label = "Old growth",
+           color = "#993300",
+           size = 4)+
   labs(title = "Figure 1. Pacific Giant Salamander Counts:",
        subtitle = "Old Growth and Clear Cut Sections of Mack Creek (1993-2017)", 
        x = "Year", 
        y = "Salamander Count (n)", 
-       caption = "Figure 1 displays the total annual PGS counts for old-growth and clear-cut sections of Mack Creek.") + 
+       caption = "Figure 1. Change in annual abundance of pacific giant salamander counts for forest sections in Mack Creek. The\ngreen line is indicative of clear cut sections, while the brown line shows abundance in old growth sections.") + 
   scale_x_continuous(limits = c(1993,2020), 
                      breaks = c(1995, 2000, 2005, 2010, 2015))
 
+# Call plot
 dite_counts_line
 ```
 
@@ -102,12 +106,10 @@ dite_counts_line
 
 Pacific giant salamander observations from 2017 were compiled to evaluate salamander counts and proportions in different channel classifications (pool, cascade, or side-channel) within Mack Creek for the two sections (old growth and clear cut).
 
-Table 1 [shows] that the majority of salamanders observed in both clear cut and old growth forest sections were found in cascades (over 60% for both). Side channels contained the second most observatoins (between 23-24% of observations). The lowest proportion of salamanders were observed in pools (less than 15% of relative abundance). Overall, more salamanders were observed in clear cut than old growth sections--368 and 320 respectively.
+Table 1 shows that the majority of salamanders observed in both clear cut and old growth forest sections were found in cascades (over 60% for both). Side channels contained the second most observations (between 23-24% of observations). The lowest proportion of salamanders were observed in pools (less than 15% of relative abundance). Overall, more salamanders were observed in clear cut than old growth sections--368 and 320 respectively.
 
-```{r}
-# Note: I = riffle, IP = Isolated pools, 
-
-# wrangle data - for DITE counts in diff channels in 2017.
+```{r, include = TRUE}
+# Wrangle data - for DITE counts in diff channels in 2017.
 channel_section <- mack_raw %>%
   filter(year == "2017", 
          unittype!="IP") %>% 
@@ -119,22 +121,23 @@ channel_section <- mack_raw %>%
          "Pool" = P,
          "Side-channel" = SC)
 
-# elongating abbreviations for table 
+# Elongate abbreviations for table 
 channel_section$Section <- gsub("CC", "Clear cut", channel_section$Section)
 channel_section$Section <- gsub("OG", "Old growth", channel_section$Section)
 
-# mutate df - to get proportions of counts per channel.
+# Mutate df - to get proportions of counts per channel
 channel_section_props <- channel_section %>% 
   adorn_percentages((denominator = "row")) %>% 
   adorn_pct_formatting(digits = 0) %>% 
   adorn_ns(position = "front") %>%
   kable(align = "c",
-        caption = "Table 1 [displays] the 2017 salamander counts in each section and the relative proportions of salamanders in each channel classification(cascade, pool or side-channel)") %>% 
+        caption = "Table 1. Counts and proportions for salamanders in channel classifications within different forest sections are shown in the table. Counts are shown as whole numbers, proportions are shown as percentages.") %>% 
   kable_styling(bootstrap_options = c("striped", "responsive"),
                 font_size = 15) %>% 
   row_spec(0, bold = T, color = "black", background = "tan") %>% 
   column_spec(1, bold = T, color = "black", background = "tan")
 
+# Call contingency table
 channel_section_props
 ```
 
@@ -149,17 +152,16 @@ chi_dite <- channel_section %>%
 
 # Run a chi-square test for independence
 dite_chi_test <- chisq.test(chi_dite)
-
 ```
 
-A chi-square test was used to determine if there is an association between forest secction (clear cut or old growth) and channel classification (cascades, pool, or side channel). The results indicate that forest section does not have a significant effect on salamander location, and are thus independent of each other ($\chi$^2^(`r dite_chi_test$parameter`) = `r round(dite_chi_test$statistic,2)`, *p* = `r round(dite_chi_test$p.value, 2)`).
+A chi-square test was used to determine if there is an association between forest section (clear cut or old growth) and channel classification (cascades, pool, or side channel). The results indicate that forest section does not have a significant effect on salamander location, and are thus independent of each other ($\chi$^2^(`r dite_chi_test$parameter`) = `r round(dite_chi_test$statistic,2)`, *p* = `r round(dite_chi_test$p.value, 2)`).
 
 ---
 
 #### D. Salamander weights in forest sections of Mack Creek in 2017
 
 ```{r}
-# wrangle data - for 2017, find dite counts + median, mean, sdev for dite weights.
+# Wrangle data - for 2017, find dite counts + median, mean, sdev for dite weights
 weight_dite <- mack_raw %>% 
   filter(year == "2017",
          unittype != "IP") %>% 
@@ -167,6 +169,7 @@ weight_dite <- mack_raw %>%
   group_by(section) %>% 
   mutate(weight_avg = mean(weight, na.rm = TRUE))
 
+# Create summary table of weight_dite data frame
 weight_section <- mack_raw %>% 
   filter(year == "2017",
          unittype != "IP") %>% 
@@ -176,24 +179,25 @@ weight_section <- mack_raw %>%
             sdev = round(sd(weight, na.rm = TRUE), digits = 2),
             count = sum(entity))
 
-# wrangle data - for 2017, find dite counts + median, mean, sdev for dite weights.
+# Wrangle data - for CC in 2017, find dite counts + median, mean, sdev for dite weights
 weights_cc <- mack_raw %>% 
   filter(year == "2017",
          section == "CC",
          unittype != "IP") %>% 
   group_by(section)
 
+# Wrangle data - for OG in 2017, find dite counts + median, mean, sdev for dite weights
 weights_og <- mack_raw %>% 
   filter(year == "2017",
          section == "OG",
          unittype != "IP") %>% 
   group_by(section)
 
-
-# Is there a significant difference in mean weights for Pacific Giant Salamanders observed in the two forest sections in 2017? 
+# Use ttest to look for a significant difference in mean weights for Pacific Giant Salamanders observed in the two forest sections in 2017 
 weight_section_ttest <- t.test(weights_cc$weight, weights_og$weight)
 # p = 0.1378
 
+# Calculte cohen's d to determine effect size
 weight_section_cohen <- cohen.d(weights_cc$weight, weights_og$weight, na.rm = TRUE)
 # d = 0.11
 ```
@@ -204,7 +208,7 @@ PGS mean weight is 1.08 grams greater in clear cut sections than in old growth (
 
 Large sample size, a lack of significance difference between sample means, and a small effect size (Cohen's d = `r round(weight_section_cohen$estimate,2)`) indicate a lack of association between PGS weight and forest condition.
 
-```{r}
+```{r, include = TRUE}
 # graph for distribution of salamander weights for each section 
 weight_distrib <- ggplot(weight_dite, aes(weight, fill = section)) +
   geom_density(alpha = 0.25) +
@@ -214,14 +218,17 @@ weight_distrib <- ggplot(weight_dite, aes(weight, fill = section)) +
   geom_vline(aes(xintercept = weight_avg,
                  color = section),
              linetype = "dashed") +
+  scale_fill_manual(values = c("#00CC33", "#993300"))+
+  scale_color_manual(values = c("#00CC33", "#993300"))+
   labs(x = "Salamander Weight (g)",
        y = "Salamander Density",
-       title = "Figure 2: Distribution of Salamander Weight in 2017",
-       caption = "Fig. 2 shows the distribution of salamander weight in clear cut and old growth forest sections of Mack creek in 2017.\nDashed lines indicate mean  weight of  salamanders observed in each forest section.") +
+       title = "Figure 2. Distribution of Salamander Weight in 2017",
+       caption = "Figure 2. The distributions of salamander weight in forest sections are displayed as curved lines. The dashed\nlines indicate mean  weight of salamanders observed in each forest section. Once again, clear cut is indicated\nby green and old growth is indicated by brown.") +
   theme_bw()+
   theme(legend.position = "top",
         plot.caption = element_text(hjust = 0))
 
+# Call plot
 weight_distrib
 ```
 
@@ -230,6 +237,7 @@ weight_distrib
 #### E. Salamander weights within channel classifications
 
 ```{r}
+# Wrangle data - to look at weight in different channel classifications
 weight_channel <- mack_raw %>% 
   filter(year == "2017",
          species == "DITE",
@@ -241,6 +249,7 @@ weight_channel <- mack_raw %>%
   group_by(channel) %>% 
   select(-unittype)
 
+# Create summary table of salamander weights in different channel classifications
 weight_channel_summary <- weight_channel %>% 
   summarize(
     mean_weight = mean(weight, na.rm = TRUE),
@@ -250,21 +259,15 @@ weight_channel_summary <- weight_channel %>%
     var_weight = var(weight, na.rm = TRUE)
   )
 
-# elongating abbreviations for legend
-#weight_channel$unittype <- gsub("SC", "Side-channel", weight_channel$unittype)
-#weight_channel$unittype <- gsub("P", "Pool", weight_channel$unittype)
-#weight_channel$unittype <- gsub("C", "Cascade", weight_channel$unittype)
-#weight_channel_summary$unittype <- gsub("SC", "Side-channel", weight_channel_summary$unittype)
-#weight_channel_summary$unittype <- gsub("P", "Pool", weight_channel_summary$unittype)
-#weight_channel_summary$unittype <- gsub("C", "Cascade", weight_channel_summary$unittype)
-
-# Beeswarm 
-ggplot(data = weight_channel_summary,
+# Create a beeswarm plot to display salamander weight data
+beeswarm_weights <- ggplot(data = weight_channel_summary,
        aes(x = channel,
            y = mean_weight)) +
   geom_beeswarm(data = weight_channel,
                 aes(x = channel, y = weight, color = channel),
+                alpha = 0.5,
                 show.legend = FALSE)+
+  scale_color_manual(values=c("#FF9900", "#3366FF", "#669900"))+
   geom_errorbar(data = weight_channel_summary,
                 mapping = aes(ymin = mean_weight - sd_weight,
                               ymax = mean_weight + sd_weight),
@@ -274,20 +277,22 @@ ggplot(data = weight_channel_summary,
              aes(x = channel,
                  y = mean_weight),
              color = "black")+ 
-  labs(title = "Figure 2: Distribution of Pacific Giant Salamander weights across each location-classification", 
-       caption = "Figure 2. PGS weight (g) across channel classifications at Mack Creek, Oregon in 2017. Blue, green, and coral points\nindicate individual PGS weights. Black points indicate group means. Error bars indicate one standard deviation in either\ndirection.",
+  labs(title = "Figure 3. Pacific Giant Salamander Weights",
+       subtitle = "Looking at differences between channel classifications",
+       caption = "Figure 3. PGS weight (g) across channel classifications at Mack Creek, Oregon in 2017. Blue, green, and coral\npointsindicate individual PGS weights. Black points indicate group means. Error bars indicate one standard\ndeviation in either direction.",
        x = "Channel Classification", 
-       y = "Salamander Weight (grams)")+
+       y = "Salamander Weight (g)")+
   coord_flip()+
   theme_bw()+
   theme(plot.caption = element_text(hjust = 0))+
   scale_y_continuous(expand = c(0,0),
                      limits = c(-5, 87.5),
                      breaks = c(0, 25, 50, 75))
-
 ```
 
-```{r}
+```{r, include = TRUE}
+# Create a df summarizing statistics for salamander weights - including" mean, standard deviation, sample size, standard error, and variance
+# Use kable + kable_styling to transform df into a nice table
 weight_summary_table <- weight_channel %>% 
   summarize(
     mean_weight = round(mean(weight, na.rm = TRUE),2),
@@ -302,61 +307,63 @@ weight_summary_table <- weight_channel %>%
          "Standard Error" = se_weight,
          "Variance" = var_weight) %>% 
   kable(align = "c",
-        caption = "Table 2.") %>% 
+        caption = "Table 2. Summary statistics for salamander weight among different channel classifications. Summary stats include mean, standard deviation, sample size, standard error, and variance.") %>% 
   kable_styling(bootstrap_options = c("striped", "responsive"),
                 font_size = 15) %>% 
   row_spec(0, bold = T, color = "black", background = "tan") %>% 
   column_spec(1, bold = T, color = "black", background = "tan")
-
-weight_summary_table
 ```
 
-Mean weights and sample size for PGS observations drawn from each channel classifications differ slightly. Cascades observed a mean weight of `r round(weight_channel_summary$mean_weight[1],2)`g among a sample of `r round(weight_channel_summary$sample_size[1],2)` salamanders. Pools observed a mean weight of `r round(weight_channel_summary$mean_weight[2],2)`g among a sample of `r round(weight_channel_summary$sample_size[2],2)` salamanders. Side-channels observed a mean weight of `r round(weight_channel_summary$mean_weight[3],2)`g among a sample of `r round(weight_channel_summary$sample_size[3],2)` salamanders.
+Mean weights and sample size for PGS observations drawn from each channel classifications differ slightly. Cascades observed a mean weight of `r round(weight_channel_summary$mean_weight[1],2)`g among a sample of `r round(weight_channel_summary$sample_size[1],2)` salamanders. Pools observed a mean weight of `r round(weight_channel_summary$mean_weight[2],2)`g among a sample of `r round(weight_channel_summary$sample_size[2],2)` salamanders. Side-channels observed a mean weight of `r round(weight_channel_summary$mean_weight[3],2)`g among a sample of `r round(weight_channel_summary$sample_size[3],2)` salamanders (Table 2).
 
 The channel classification with the highest mean weight (pool) was 3.62g greater than the channel with the smallest mean (side-channel). The channel with the largest count (cascade) contained 372 salamanders more than the channel with the lowest count (pool).
 
+```{r, include = TRUE}
+# Call table
+weight_summary_table
+```
 
-```{r, include = FALSE}
-# Levene's test 
+```{r,}
+# Variances are kind of similar (largest is < 4x greater than the smallest)
 
-# Importantly, variances are SOMEWHAT close (largest is < 4x greater than the smallest)
-# But we can perform a Levene's Test for equal variances anyway: 
-
+# Perform a Levene's Test for equal variances 
 weight_levene <- leveneTest(weight ~ channel, data = weight_channel)
-weight_levene
 ```
 
 Variance in weight among channel classifications are somewhat similar. The channel with the largest variance is less than four times greater than that of the channel with the smallest variance. A Levene's Test shows that variances are equal (because p-val >0.05). Therefore, it is appropriate to execute a one-way ANOVA to compare means between the three groups.
 
-```{r, include = FALSE}
+```{r}
 # One-way ANOVA
-
 weight_aov <- aov(weight ~ channel, data = weight_channel)
 
+# wrangle ANOVA outputs to be able to refer to them in text
 aov_outputs <- unlist(summary(weight_aov))
 ```
 
 A one-way ANOVA indicates that the mean weights for the three classifications are *not* the same (F(`r aov_outputs[1]`, `r aov_outputs[2]`) = `r round(aov_outputs[7],2)`, *p* = `r round(aov_outputs[9],3)`)). In response, a post-hoc pairwise comparison using Tukey is used to test which of the 3 channel classifications differ from one another (based on mean weight values).
 
-```{r, include = FALSE}
-
+```{r}
+# Run a Tukey test
 tukey <- TukeyHSD(weight_aov)
-tukey
-
-#F(`r aov_outputs[1]`, `r aov_outputs[2]`) = `r round(aov_outputs[7],2)`, *p* = `r round(aov_outputs[9],3)`).
 ```
 
 A one-way ANOVA, paired with post-hoc Tukey's HSD, reveals a significant difference *only* in mean salamander wieghts between salamanders found in side channels and pools (`r round(tukey$channel[12],3)`). The weight of Salamander's in cascades did not differ significantly from pools or side channels (`r round(tukey$channel[10],3)` and `r round(tukey$channel[11],3)`, respectively).
 
-Weight observations for each channel classification were distributed in a relatively uniform manner around the mean. However, each channel classification contained multiple outliers that resulted in a skew of the mean values. Using a different summary statistic that is less affected by outlier values, such as median values, would allow for a more accurate depiction of this data.
+Weight observations for each channel classification were distributed in a relatively uniform manner around the mean. However, each channel classification contained multiple outliers that resulted in a skew of the mean values. Using a different summary statistic that is less affected by outlier values, such as median values, would allow for a more accurate depiction of this data (Fig. 2).
+
+```{r, include = TRUE}
+# Call beeswarm plot
+beeswarm_weights
+```
 
 --- 
+
 ### Summary
 
-1. On an annual scale, salamander abundance between differnt forest sections follow similar trends of growth and decline. However, prior to 2015, old growth sections continually experienced higher salamander counts than clear cut sections (Fig. 1).
+1. On an annual scale, salamander abundance between different forest sections follow similar trends of growth and decline. However, prior to 2015, old growth sections continually experienced higher salamander counts than clear cut sections (Fig. 1).
 2. Channel type, rather than forest section, is a better indicator of salamander abundance. Table 1 shows the influence of channel classification resulting in a high proportion of salamander counts.
-3. In 2017, salamander distribution of weight and mean weight values were undiferentiated between clear cut and old growth sections (Fig. 2).
-4. Individual salamander weights in Mack Creek are bellow 25g, but outliers indicate that it is possible for salamanders to grow to a much larger wieght (i.e., above 75g). Future studies should assess the factors limiting salamander growth.
+3. In 2017, salamander distribution of weight and mean weight values were undifferentiated between clear cut and old growth sections (Fig. 2).
+4. Individual salamander weights in Mack Creek are bellow 25g, but outliers indicate that it is possible for salamanders to grow to a much larger weight (i.e., above 75g). Future studies should assess the factors limiting salamander growth (Fig. 3).
 
 --- 
 ### References
