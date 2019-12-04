@@ -25,7 +25,7 @@ library(car)
 library(plotly)
 library(effsize)
 
-# Read in original data
+# Read in the original data
 mack_raw <- read_csv("mack_creek_vertebrates.csv") %>% 
   clean_names() %>% 
   filter(species == "DITE") %>% 
@@ -343,7 +343,7 @@ aov_outputs <- unlist(summary(weight_aov))
 A one-way ANOVA indicates that the mean weights for the three classifications are *not* the same (F(`r aov_outputs[1]`, `r aov_outputs[2]`) = `r round(aov_outputs[7],2)`, *p* = `r round(aov_outputs[9],3)`)). In response, a post-hoc pairwise comparison using Tukey is used to test which of the 3 channel classifications differ from one another (based on mean weight values).
 
 ```{r}
-# Run a Tukey test
+# Run a Tukey test on channel classifications
 tukey <- TukeyHSD(weight_aov)
 ```
 
@@ -366,7 +366,7 @@ beeswarm_weights
 4. Individual salamander weights in Mack Creek are bellow 25g, but outliers indicate that it is possible for salamanders to grow to a much larger weight (i.e., above 75g). Future studies should assess the factors limiting salamander growth (Fig. 3).
 
 --- 
-### References
+### References 
 1. "Dicamptodon tenebrosus; Pacific Giant Salamander." Gary Nafis, California Herps,
 http://www.californiaherps.com/salamanders/images/dtenebrosusfchu3086.jpg
 
